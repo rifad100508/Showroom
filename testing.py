@@ -109,6 +109,10 @@ def clear_screen():
     os.system("cls" if os.name == "nt" else "clear")
 
 
+def tunggu_enter_ke_menu_utama():
+    input("\nTekan Enter untuk kembali ke halaman utama...")
+
+
 def animasi_loading(pesan="Sedang memproses...", durasi=0.02, panjang=20):
     clear_screen()
     print("\n" + "=" * 60)
@@ -241,22 +245,44 @@ def tampilkan_mobil():
         print("Belum ada data mobil.")
         return
 
-    print("-" * 100)
-    print(f"{'ID':<8} {'MEREK':<15} {'MODEL':<18} "
-          f"{'TAHUN':<8} {'HARGA':<20} {'STATUS':<12}")
-    print("-" * 100)
+    cetak_tabel_mobil(data["mobil"])
 
-    for mobil in data["mobil"]:
-        print(
-            f"{mobil['id']:<8} "
-            f"{mobil['merek']:<15} "
-            f"{mobil['model']:<18} "
-            f"{mobil['tahun']:<8} "
-            f"{format_rupiah(mobil['harga']):<20} "
-            f"{mobil['status']:<12}"
+
+def cetak_tabel(judul, baris):
+    lebar = [
+        max([len(judul[i])] + [len(row[i]) for row in baris])
+        for i in range(len(judul))
+    ]
+    garis = "+" + "+".join("-" * (width + 2) for width in lebar) + "+"
+
+    print(garis)
+    print("| " + " | ".join(
+        f"{kolom:<{lebar[i]}}" for i, kolom in enumerate(judul)
+    ) + " |")
+    print(garis)
+
+    for row in baris:
+        print("| " + " | ".join(
+            f"{nilai:<{lebar[i]}}" for i, nilai in enumerate(row)
+        ) + " |")
+
+    print(garis)
+
+
+def cetak_tabel_mobil(koleksi):
+    judul = ("ID", "MEREK", "MODEL", "TAHUN", "HARGA", "STATUS")
+    baris = [
+        (
+            mobil["id"],
+            mobil["merek"],
+            mobil["model"],
+            str(mobil["tahun"]),
+            format_rupiah(mobil["harga"]),
+            mobil["status"],
         )
-
-    print("-" * 100)
+        for mobil in koleksi
+    ]
+    cetak_tabel(judul, baris)
 
 
 def detail_mobil(mobil):
@@ -482,11 +508,13 @@ def menu_pencarian():
         kata = input_teks("Masukkan ID: ")
         hasil = binary_search_id(data["mobil"], kata)
 
+        clear_screen()
         if hasil:
             detail_mobil(hasil)
         else:
             print("Mobil tidak ditemukan!")
 
+        tunggu_enter_ke_menu_utama()
         return
 
     atribut = {
@@ -504,13 +532,14 @@ def menu_pencarian():
     kata = input_teks("Masukkan kata kunci: ")
     hasil = linear_search(data["mobil"], kata, atribut[pilihan])
 
+    clear_screen()
     if hasil:
-        print(f"\nDitemukan {len(hasil)} mobil:")
-
         for mobil in hasil:
             detail_mobil(mobil)
     else:
         print("Data tidak ditemukan!")
+
+    tunggu_enter_ke_menu_utama()
 
 
 # ==========================================
@@ -606,15 +635,11 @@ def menu_sorting():
     atribut, ascending, algoritma = pengaturan[pilihan]
     hasil = algoritma(data["mobil"], atribut, ascending)
 
+    clear_screen()
     print("\n=== HASIL PENGURUTAN ===")
+    cetak_tabel_mobil(hasil)
 
-    for mobil in hasil:
-        print(
-            f"{mobil['id']} | "
-            f"{mobil['merek']} {mobil['model']} | "
-            f"{mobil['tahun']} | "
-            f"{format_rupiah(mobil['harga'])}"
-        )
+    tunggu_enter_ke_menu_utama()
 
 
 # ==========================================
@@ -622,6 +647,7 @@ def menu_sorting():
 # ==========================================
 
 def transaksi_penjualan():
+    clear_screen()
     print("\n=== TRANSAKSI PENJUALAN ===")
 
     tersedia = [
@@ -653,14 +679,18 @@ def transaksi_penjualan():
 
     print("\nHarga:", format_rupiah(mobil["harga"]))
 
-    diskon = input_angka("Diskon: ", 0)
+    while True:
+        diskon_persen = input_angka("Diskon (%): ", 0)
 
-    if diskon > mobil["harga"]:
-        print("Diskon tidak boleh melebihi harga mobil!")
-        return
+        if diskon_persen <= 100:
+            break
 
+        print("Diskon tidak boleh melebihi 100%.")
+
+    diskon = mobil["harga"] * diskon_persen // 100
     total = mobil["harga"] - diskon
 
+    print(f"Diskon ({diskon_persen}%):", format_rupiah(diskon))
     print("Total pembayaran:", format_rupiah(total))
 
     konfirmasi = input("Konfirmasi transaksi? (Y/N): ").strip().upper()
@@ -675,6 +705,7 @@ def transaksi_penjualan():
         "id_pelanggan": id_p,
         "harga": mobil["harga"],
         "diskon": diskon,
+        "diskon_persen": diskon_persen,
         "total": total,
         "tanggal": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "status": "Berhasil"
@@ -692,6 +723,7 @@ def transaksi_penjualan():
 
 
 def riwayat_transaksi():
+    clear_screen()
     print("\n=== RIWAYAT TRANSAKSI ===")
 
     if not data["transaksi"]:
@@ -724,11 +756,26 @@ def riwayat_transaksi():
 
 
 def batalkan_transaksi():
+    clear_screen()
     print("\n=== PEMBATALAN TRANSAKSI ===")
 
     riwayat_transaksi()
 
+    while True:
+        lanjut = input(
+            "Lanjutkan pembatalan transaksi? (Y/N): "
+        ).strip().upper()
+
+        if lanjut in ("Y", "N"):
+            break
+        print("Masukkan Y atau N.")
+
+    if lanjut == "N":
+        print("Pembatalan transaksi dibatalkan.")
+        return False
+
     id_tr = input_teks("Masukkan ID transaksi: ").upper()
+
     transaksi = cari_berdasarkan_id(data["transaksi"], id_tr)
 
     if not transaksi:
@@ -739,7 +786,9 @@ def batalkan_transaksi():
         print("Transaksi sudah dibatalkan sebelumnya.")
         return
 
-    konfirmasi = input("Batalkan transaksi? (Y/N): ").strip().upper()
+    konfirmasi = input(
+        "Konfirmasi pembatalan transaksi? (Y/N): "
+    ).strip().upper()
 
     if konfirmasi == "Y":
         animasi_loading("Membatalkan transaksi...")
@@ -761,15 +810,14 @@ def batalkan_transaksi():
 # ==========================================
 
 def laporan_statistik():
+    clear_screen()
     print("\n=== LAPORAN SHOWROOM ===")
 
     total_mobil = len(data["mobil"])
-
     tersedia = sum(
         1 for m in data["mobil"]
         if m["status"] == "Tersedia"
     )
-
     terjual = sum(
         1 for m in data["mobil"]
         if m["status"] == "Terjual"
@@ -782,57 +830,49 @@ def laporan_statistik():
 
     pendapatan = sum(t["total"] for t in transaksi_berhasil)
 
-    print("Total Mobil       :", total_mobil)
-    print("Mobil Tersedia    :", tersedia)
-    print("Mobil Terjual     :", terjual)
-    print("Total Pelanggan   :", len(data["pelanggan"]))
-    print("Total Transaksi   :", len(transaksi_berhasil))
-    print("Total Pendapatan  :", format_rupiah(pendapatan))
+    ringkasan = [
+        ("Total Mobil", str(total_mobil)),
+        ("Mobil Tersedia", str(tersedia)),
+        ("Mobil Terjual", str(terjual)),
+        ("Total Pelanggan", str(len(data["pelanggan"]))),
+        ("Total Transaksi", str(len(transaksi_berhasil))),
+        ("Total Pendapatan", format_rupiah(pendapatan)),
+    ]
 
     if data["mobil"]:
         termahal = max(data["mobil"], key=lambda m: m["harga"])
         termurah = min(data["mobil"], key=lambda m: m["harga"])
+        ringkasan.extend([
+            ("Mobil Termahal", f"{termahal['merek']} {termahal['model']}"),
+            ("Mobil Termurah", f"{termurah['merek']} {termurah['model']}"),
+        ])
 
-        print(
-            "Mobil Termahal    :",
-            termahal["merek"], termahal["model"]
-        )
-
-        print(
-            "Mobil Termurah    :",
-            termurah["merek"], termurah["model"]
-        )
-
-    # Statistik merek menggunakan SET dan DICTIONARY
     statistik_merek = {}
-
-    for m in data["mobil"]:
-        merek = m["merek"]
+    for mobil in data["mobil"]:
+        merek = mobil["merek"]
         statistik_merek[merek] = statistik_merek.get(merek, 0) + 1
 
-    if statistik_merek:
-        print("\nJumlah Mobil per Merek:")
-
-        for merek, jumlah in statistik_merek.items():
-            print(f"- {merek}: {jumlah}")
-
-    # Statistik mobil terlaris
     penjualan = {}
-
-    for t in transaksi_berhasil:
-        id_mobil = t["id_mobil"]
+    for transaksi in transaksi_berhasil:
+        id_mobil = transaksi["id_mobil"]
         penjualan[id_mobil] = penjualan.get(id_mobil, 0) + 1
 
     if penjualan:
         terlaris = max(penjualan, key=penjualan.get)
         mobil_laris = cari_berdasarkan_id(data["mobil"], terlaris)
-
         if mobil_laris:
-            print(
-                "\nMobil Terlaris:",
-                mobil_laris["merek"],
-                mobil_laris["model"]
+            ringkasan.append(
+                ("Mobil Terlaris", f"{mobil_laris['merek']} {mobil_laris['model']}")
             )
+
+    print("\nRingkasan:")
+    cetak_tabel(("INFORMASI", "NILAI"), ringkasan)
+
+    print("\nJumlah Mobil per Merek:")
+    cetak_tabel(
+        ("MEREK", "JUMLAH MOBIL"),
+        [(merek, str(jumlah)) for merek, jumlah in statistik_merek.items()]
+    )
 
 
 # ==========================================
@@ -852,13 +892,25 @@ def menu_mobil():
         pilih = input("Pilihan: ").strip()
 
         if pilih == "1":
+            clear_screen()
             tambah_mobil()
+            tunggu_enter_ke_menu_utama()
+            break
         elif pilih == "2":
+            clear_screen()
             tampilkan_mobil()
+            tunggu_enter_ke_menu_utama()
+            break
         elif pilih == "3":
+            clear_screen()
             update_mobil()
+            tunggu_enter_ke_menu_utama()
+            break
         elif pilih == "4":
+            clear_screen()
             hapus_mobil()
+            tunggu_enter_ke_menu_utama()
+            break
         elif pilih == "0":
             break
         else:
@@ -878,13 +930,25 @@ def menu_pelanggan():
         pilih = input("Pilihan: ").strip()
 
         if pilih == "1":
+            clear_screen()
             tambah_pelanggan()
+            tunggu_enter_ke_menu_utama()
+            break
         elif pilih == "2":
+            clear_screen()
             tampilkan_pelanggan()
+            tunggu_enter_ke_menu_utama()
+            break
         elif pilih == "3":
+            clear_screen()
             update_pelanggan()
+            tunggu_enter_ke_menu_utama()
+            break
         elif pilih == "4":
+            clear_screen()
             hapus_pelanggan()
+            tunggu_enter_ke_menu_utama()
+            break
         elif pilih == "0":
             break
         else:
@@ -922,6 +986,7 @@ def main():
 
         elif pilihan == "3":
             transaksi_penjualan()
+            tunggu_enter_ke_menu_utama()
 
         elif pilihan == "4":
             menu_pencarian()
@@ -931,12 +996,15 @@ def main():
 
         elif pilihan == "6":
             laporan_statistik()
+            tunggu_enter_ke_menu_utama()
 
         elif pilihan == "7":
             riwayat_transaksi()
+            tunggu_enter_ke_menu_utama()
 
         elif pilihan == "8":
-            batalkan_transaksi()
+            if batalkan_transaksi() is not False:
+                tunggu_enter_ke_menu_utama()
 
         elif pilihan == "0":
             simpan_data()

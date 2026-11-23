@@ -120,6 +120,28 @@
             "bahan_bakar": "Solar",
             "harga": 1,
             "status": "Tersedia"
+        },
+        {
+            "id": "M012",
+            "merek": "Bmw",
+            "model": "M4",
+            "tahun": 2029,
+            "warna": "Biru",
+            "transmisi": "Manual",
+            "bahan_bakar": "Bensin",
+            "harga": 100000,
+            "status": "Tersedia"
+        },
+        {
+            "id": "M013",
+            "merek": "Avanza",
+            "model": "Avanza",
+            "tahun": 2026,
+            "warna": "Putih",
+            "transmisi": "Manual",
+            "bahan_bakar": "Bensin",
+            "harga": 1000000000,
+            "status": "Tersedia"
         }
     ],
     "pelanggan": [],
