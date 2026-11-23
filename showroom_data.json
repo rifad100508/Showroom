@@ -1,0 +1,127 @@
+{
+    "mobil": [
+        {
+            "id": "M001",
+            "merek": "Avanza",
+            "model": "V1",
+            "tahun": 2027,
+            "warna": "Biru",
+            "transmisi": "Metic",
+            "bahan_bakar": "Bensin",
+            "harga": 1111111,
+            "status": "Tersedia"
+        },
+        {
+            "id": "M002",
+            "merek": "Bmw",
+            "model": "M3",
+            "tahun": 2026,
+            "warna": "Hitam",
+            "transmisi": "Manual",
+            "bahan_bakar": "Bensin",
+            "harga": 1000000,
+            "status": "Tersedia"
+        },
+        {
+            "id": "M003",
+            "merek": "Bmw",
+            "model": "M4",
+            "tahun": 2025,
+            "warna": "Biru",
+            "transmisi": "Manual",
+            "bahan_bakar": "Solar",
+            "harga": 2000000,
+            "status": "Tersedia"
+        },
+        {
+            "id": "M004",
+            "merek": "1",
+            "model": "1",
+            "tahun": 2027,
+            "warna": "Hitam",
+            "transmisi": "Manual",
+            "bahan_bakar": "Bensin",
+            "harga": 1000000,
+            "status": "Tersedia"
+        },
+        {
+            "id": "M005",
+            "merek": "1",
+            "model": "M4",
+            "tahun": 2026,
+            "warna": "Hitam",
+            "transmisi": "Manual",
+            "bahan_bakar": "Solar",
+            "harga": 100000,
+            "status": "Tersedia"
+        },
+        {
+            "id": "M006",
+            "merek": "1",
+            "model": "1",
+            "tahun": 1886,
+            "warna": "1",
+            "transmisi": "1",
+            "bahan_bakar": "1",
+            "harga": 1,
+            "status": "Tersedia"
+        },
+        {
+            "id": "M007",
+            "merek": "Bmw",
+            "model": "M4",
+            "tahun": 2029,
+            "warna": "Biru",
+            "transmisi": "Manual",
+            "bahan_bakar": "Solar",
+            "harga": 100000,
+            "status": "Tersedia"
+        },
+        {
+            "id": "M008",
+            "merek": "Bmw",
+            "model": "M4",
+            "tahun": 2029,
+            "warna": "Biru",
+            "transmisi": "Solar",
+            "bahan_bakar": "Solar",
+            "harga": 10000000,
+            "status": "Tersedia"
+        },
+        {
+            "id": "M009",
+            "merek": "Mercy",
+            "model": "M2",
+            "tahun": 2020,
+            "warna": "Biru",
+            "transmisi": "Solar",
+            "bahan_bakar": "Solar",
+            "harga": 100000,
+            "status": "Tersedia"
+        },
+        {
+            "id": "M010",
+            "merek": "Avanza",
+            "model": "V1",
+            "tahun": 2029,
+            "warna": "Biur",
+            "transmisi": "Manuak",
+            "bahan_bakar": "Solar",
+            "harga": 10000000,
+            "status": "Tersedia"
+        },
+        {
+            "id": "M011",
+            "merek": "Bmw",
+            "model": "Avanza",
+            "tahun": 2028,
+            "warna": "Biru",
+            "transmisi": "Solar",
+            "bahan_bakar": "Solar",
+            "harga": 1,
+            "status": "Tersedia"
+        }
+    ],
+    "pelanggan": [],
+    "transaksi": []
+}
