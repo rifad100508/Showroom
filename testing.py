@@ -1,9 +1,12 @@
 
-import json
+import json 
+# json buat menapilkan data dalam bentuk json(javascript object notation)
 import os
+# os Mengelola file dan folder
 from datetime import datetime
+# Baris ini mengambil kelas datetime dari modul datetime untuk mengolah informasi tanggal dan waktu yang mudah dibaca manusia.
 import time
-import os
+# time yang lebih fokus pada fungsi waktu tingkat sistem (low-level) dan kontrol jalannya program.
 
 # ==========================================
 # SHOWROOM MANAGEMENT SYSTEM
@@ -129,23 +132,42 @@ def animasi_loading(pesan="Sedang memproses...", durasi=0.02, panjang=20):
 
 def animasi_berjalan(pesan="Mobil sedang bergerak..."):
     clear_screen()
-    print(f"\n{pesan}\n")
-
     mobil_animasi = [
-        "      ___      ___      ___",
-        "____/  )____/  )____/  )",
-        "(____ _   _   _   _   _  )",
-        "     `-(_)--(_)-'  `-(_)--(_)-'",
+        "        ______",
+        "  _____/|_||_|\\___",
+        " /  ___         __\\",
+        "|  /   \\_______/   |",
+        "(_o_)-------------(_o_)",
     ]
 
-    for offset in range(0, 45):
-        frame = "\n".join(" " * offset + baris for baris in mobil_animasi)
-        print(frame)
-        time.sleep(0.05)
-        clear_screen()
-        print(f"\n{pesan}\n")
+    for langkah in range(32):
+        posisi = langkah * 2
+        speed_lines = ["", ">>", ">>>", ">> >", ">>>>"][langkah % 5]
+        jalan = "=" * 48
+        strip = "-" * (langkah % 7)
 
-    print("\n")
+        frame = [
+            f"\n  {pesan}",
+            "  " + "=" * 48,
+            f"  {speed_lines:<8}  ...  SHOWROOM HIGHWAY 2026  ...",
+            "",
+        ]
+        frame.extend(" " * posisi + baris for baris in mobil_animasi)
+        frame.extend([
+            "",
+            "  " + jalan,
+            "  " + strip + "=" * (48 - len(strip)),
+            "  " + "=" * 48,
+            f"  Progres: [{'█' * (langkah // 2)}{'░' * (16 - langkah // 2)}]",
+        ])
+
+        print("\n".join(frame), flush=True)
+        time.sleep(0.055)
+        clear_screen()
+
+    print(f"\n  {pesan}")
+    print("  Mobil telah sampai tujuan!")
+    time.sleep(0.35)
 
 
 def banner_premium(judul):

@@ -142,6 +142,28 @@
             "bahan_bakar": "Bensin",
             "harga": 1000000000,
             "status": "Tersedia"
+        },
+        {
+            "id": "M014",
+            "merek": "Bmw",
+            "model": "M4",
+            "tahun": 2020,
+            "warna": "Biru",
+            "transmisi": "Manual",
+            "bahan_bakar": "Bensin",
+            "harga": 10000000,
+            "status": "Tersedia"
+        },
+        {
+            "id": "M015",
+            "merek": "Bmw",
+            "model": "M1",
+            "tahun": 2030,
+            "warna": "Biru",
+            "transmisi": "Manual",
+            "bahan_bakar": "Bensin",
+            "harga": 1000000,
+            "status": "Tersedia"
         }
     ],
     "pelanggan": [],
