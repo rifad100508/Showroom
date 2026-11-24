@@ -9,35 +9,13 @@
             "transmisi": "Metic",
             "bahan_bakar": "Bensin",
             "harga": 1111111,
-            "status": "Tersedia"
+            "status": "Terjual"
         },
         {
             "id": "M002",
             "merek": "Bmw",
             "model": "M3",
             "tahun": 2026,
-            "warna": "Hitam",
-            "transmisi": "Manual",
-            "bahan_bakar": "Bensin",
-            "harga": 1000000,
-            "status": "Tersedia"
-        },
-        {
-            "id": "M003",
-            "merek": "Bmw",
-            "model": "M4",
-            "tahun": 2025,
-            "warna": "Biru",
-            "transmisi": "Manual",
-            "bahan_bakar": "Solar",
-            "harga": 2000000,
-            "status": "Tersedia"
-        },
-        {
-            "id": "M004",
-            "merek": "1",
-            "model": "1",
-            "tahun": 2027,
             "warna": "Hitam",
             "transmisi": "Manual",
             "bahan_bakar": "Bensin",
@@ -53,7 +31,7 @@
             "transmisi": "Manual",
             "bahan_bakar": "Solar",
             "harga": 100000,
-            "status": "Tersedia"
+            "status": "Terjual"
         },
         {
             "id": "M006",
@@ -164,8 +142,132 @@
             "bahan_bakar": "Bensin",
             "harga": 1000000,
             "status": "Tersedia"
+        },
+        {
+            "id": "M004",
+            "merek": "Volvo",
+            "model": "Volvoa3",
+            "tahun": 2018,
+            "warna": "Hitam",
+            "transmisi": "Manual",
+            "bahan_bakar": "Bensin",
+            "harga": 1000000000,
+            "status": "Tersedia"
+        },
+        {
+            "id": "M016",
+            "merek": "Toyota",
+            "model": "A4",
+            "tahun": 2020,
+            "warna": "Biru",
+            "transmisi": "Metic",
+            "bahan_bakar": "Bensin",
+            "harga": 100000000,
+            "status": "Tersedia"
+        },
+        {
+            "id": "M017",
+            "merek": "Volvo",
+            "model": "12",
+            "tahun": 2020,
+            "warna": "Biru",
+            "transmisi": "Manual",
+            "bahan_bakar": "Solar",
+            "harga": 1000000002,
+            "status": "Tersedia"
         }
     ],
-    "pelanggan": [],
-    "transaksi": []
+    "pelanggan": [
+        {
+            "id": "P002",
+            "nama": "Iki",
+            "telepon": "082949272947",
+            "alamat": "Kp.Jakarta Rt 02 Rw010"
+        },
+        {
+            "id": "P004",
+            "nama": "Iki",
+            "telepon": "0829489248",
+            "alamat": "Kp.Ciawi"
+        }
+    ],
+    "transaksi": [
+        {
+            "id": "TR001",
+            "id_mobil": "M003",
+            "id_pelanggan": "P002",
+            "harga": 2000000,
+            "diskon": 400000,
+            "diskon_persen": 20,
+            "total": 1600000,
+            "tanggal": "2026-11-24 22:59:23",
+            "status": "Dibatalkan"
+        },
+        {
+            "id": "TR002",
+            "id_mobil": "M001",
+            "id_pelanggan": "P002",
+            "harga": 1111111,
+            "diskon": 222222,
+            "diskon_persen": 20,
+            "total": 888889,
+            "tanggal": "2026-11-24 23:21:32",
+            "status": "Dibatalkan"
+        },
+        {
+            "id": "TR003",
+            "id_mobil": "M002",
+            "id_pelanggan": "P002",
+            "harga": 1000000,
+            "diskon": 300000,
+            "diskon_persen": 30,
+            "total": 700000,
+            "tanggal": "2026-11-24 23:22:51",
+            "status": "Dibatalkan"
+        },
+        {
+            "id": "TR004",
+            "id_mobil": "M001",
+            "id_pelanggan": "P002",
+            "harga": 1111111,
+            "diskon": 333333,
+            "diskon_persen": 30,
+            "total": 777778,
+            "tanggal": "2026-11-24 23:30:23",
+            "status": "Berhasil"
+        },
+        {
+            "id": "TR005",
+            "id_mobil": "M003",
+            "id_pelanggan": "P002",
+            "harga": 2000000,
+            "diskon": 400000,
+            "diskon_persen": 20,
+            "total": 1600000,
+            "tanggal": "2026-11-24 23:32:11",
+            "status": "Dibatalkan"
+        },
+        {
+            "id": "TR006",
+            "id_mobil": "M005",
+            "id_pelanggan": "P002",
+            "harga": 100000,
+            "diskon": 10000,
+            "diskon_persen": 10,
+            "total": 90000,
+            "tanggal": "2026-11-24 23:39:22",
+            "status": "Berhasil"
+        },
+        {
+            "id": "TR007",
+            "id_mobil": "M017",
+            "id_pelanggan": "P004",
+            "harga": 1000000002,
+            "diskon": 100000000,
+            "diskon_persen": 10,
+            "total": 900000002,
+            "tanggal": "2026-11-25 00:00:36",
+            "status": "Pending"
+        }
+    ]
 }

@@ -97,15 +97,16 @@ def format_rupiah(angka):
 
 
 def buat_id(prefix, koleksi):
-    nomor = 1
+    nomor_terbesar = 0
 
-    while True:
-        id_baru = f"{prefix}{nomor:03d}"
+    for item in koleksi:
+        id_data = item.get("id", "")
+        nomor = id_data[len(prefix):]
 
-        if not cari_berdasarkan_id(koleksi, id_baru):
-            return id_baru
+        if id_data.startswith(prefix) and nomor.isdigit():
+            nomor_terbesar = max(nomor_terbesar, int(nomor))
 
-        nomor += 1
+    return f"{prefix}{nomor_terbesar + 1:03d}"
 
 
 def clear_screen():
@@ -333,6 +334,10 @@ def update_mobil():
         print("Mobil terjual tidak dapat diubah melalui menu ini.")
         return
 
+    if id_mobil in id_mobil_pending():
+        print("Mobil sedang menunggu pembayaran dan tidak dapat diubah.")
+        return
+
     print("\nMasukkan data baru.")
     print("Tekan ENTER jika ingin mempertahankan data lama.")
 
@@ -376,8 +381,9 @@ def hapus_mobil():
         return
 
     if any(t["id_mobil"] == id_mobil and
-           t["status"] == "Berhasil" for t in data["transaksi"]):
-        print("Mobil memiliki riwayat transaksi. Tidak dapat dihapus.")
+           t["status"] in ("Berhasil", "Pending")
+           for t in data["transaksi"]):
+        print("Mobil memiliki transaksi aktif. Tidak dapat dihapus.")
         return
 
     detail_mobil(mobil)
@@ -668,20 +674,39 @@ def menu_sorting():
 # 7. TRANSAKSI PENJUALAN
 # ==========================================
 
+def id_mobil_pending():
+    return {
+        transaksi["id_mobil"]
+        for transaksi in data["transaksi"]
+        if transaksi["status"] == "Pending"
+    }
+
+
 def transaksi_penjualan():
     clear_screen()
     print("\n=== TRANSAKSI PENJUALAN ===")
 
+    mobil_pending = id_mobil_pending()
     tersedia = [
         m for m in data["mobil"]
-        if m["status"] == "Tersedia"
+        if m["status"] == "Tersedia" and m["id"] not in mobil_pending
     ]
 
     if not tersedia:
-        print("Tidak ada mobil yang tersedia!")
+        print("Tidak ada mobil yang tersedia untuk dibeli!")
         return
 
-    tampilkan_mobil()
+    cetak_tabel_mobil(tersedia)
+
+    while True:
+        lanjut = input("Lanjutkan transaksi penjualan? (Y/N): ").strip().upper()
+        if lanjut in ("Y", "N"):
+            break
+        print("Masukkan Y atau N.")
+
+    if lanjut == "N":
+        print("Transaksi penjualan dibatalkan.")
+        return
 
     id_mobil = input_teks("ID mobil yang dibeli: ").upper()
     mobil = cari_berdasarkan_id(tersedia, id_mobil)
@@ -730,18 +755,62 @@ def transaksi_penjualan():
         "diskon_persen": diskon_persen,
         "total": total,
         "tanggal": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "status": "Berhasil"
+        "status": "Pending"
     }
 
     data["transaksi"].append(transaksi)
-    mobil["status"] = "Terjual"
 
-    animasi_loading("Memproses transaksi penjualan...")
+    animasi_loading("Menyimpan transaksi pembelian...")
     simpan_data()
 
-    print("\nTransaksi berhasil!")
+    print("\nTransaksi dibuat dan menunggu pembayaran.")
     print("ID Transaksi:", transaksi["id"])
     print("Total:", format_rupiah(total))
+
+
+def konfirmasi_pembayaran():
+    clear_screen()
+    print("\n=== KONFIRMASI PEMBAYARAN ===")
+
+    transaksi_pending = [
+        transaksi for transaksi in data["transaksi"]
+        if transaksi["status"] == "Pending"
+    ]
+
+    if not transaksi_pending:
+        print("Tidak ada transaksi yang menunggu pembayaran.")
+        return
+
+    for transaksi in transaksi_pending:
+        print(
+            f"ID: {transaksi['id']} | Mobil: {transaksi['id_mobil']} | "
+            f"Total: {format_rupiah(transaksi['total'])}"
+        )
+
+    id_tr = input_teks("Masukkan ID transaksi: ").upper()
+    transaksi = cari_berdasarkan_id(transaksi_pending, id_tr)
+
+    if not transaksi:
+        print("Transaksi pending tidak ditemukan!")
+        return
+
+    mobil = cari_berdasarkan_id(data["mobil"], transaksi["id_mobil"])
+    if not mobil or mobil["status"] != "Tersedia":
+        print("Mobil tidak tersedia. Pembayaran tidak dapat dikonfirmasi.")
+        return
+
+    konfirmasi = input(
+        "Konfirmasi pembayaran berhasil? (Y/N): "
+    ).strip().upper()
+
+    if konfirmasi != "Y":
+        print("Transaksi tetap berstatus Pending.")
+        return
+
+    transaksi["status"] = "Berhasil"
+    mobil["status"] = "Terjual"
+    simpan_data()
+    print("Pembayaran berhasil. Status transaksi: Berhasil.")
 
 
 def riwayat_transaksi():
@@ -781,11 +850,40 @@ def batalkan_transaksi():
     clear_screen()
     print("\n=== PEMBATALAN TRANSAKSI ===")
 
-    riwayat_transaksi()
+    transaksi_pending = [
+        transaksi for transaksi in data["transaksi"]
+        if transaksi["status"] == "Pending"
+    ]
+
+    if not transaksi_pending:
+        print("Tidak ada transaksi berstatus Pending.")
+        return
+
+    for transaksi in transaksi_pending:
+        mobil = cari_berdasarkan_id(data["mobil"], transaksi["id_mobil"])
+        pelanggan = cari_berdasarkan_id(
+            data["pelanggan"], transaksi["id_pelanggan"]
+        )
+        nama_mobil = (
+            f"{mobil['merek']} {mobil['model']}"
+            if mobil else "Data mobil tidak tersedia"
+        )
+        nama_pelanggan = (
+            pelanggan["nama"]
+            if pelanggan else "Data pelanggan tidak tersedia"
+        )
+
+        print("-" * 45)
+        print("ID Transaksi :", transaksi["id"])
+        print("Mobil        :", nama_mobil)
+        print("Pelanggan    :", nama_pelanggan)
+        print("Tanggal      :", transaksi["tanggal"])
+        print("Total        :", format_rupiah(transaksi["total"]))
+        print("Status       :", transaksi["status"])
 
     while True:
         lanjut = input(
-            "Lanjutkan pembatalan transaksi? (Y/N): "
+            "Lanjutkan pembatalan transaksi Pending? (Y/N): "
         ).strip().upper()
 
         if lanjut in ("Y", "N"):
@@ -796,16 +894,11 @@ def batalkan_transaksi():
         print("Pembatalan transaksi dibatalkan.")
         return False
 
-    id_tr = input_teks("Masukkan ID transaksi: ").upper()
-
-    transaksi = cari_berdasarkan_id(data["transaksi"], id_tr)
+    id_tr = input_teks("Masukkan ID transaksi Pending: ").upper()
+    transaksi = cari_berdasarkan_id(transaksi_pending, id_tr)
 
     if not transaksi:
-        print("Transaksi tidak ditemukan!")
-        return
-
-    if transaksi["status"] != "Berhasil":
-        print("Transaksi sudah dibatalkan sebelumnya.")
+        print("Transaksi Pending tidak ditemukan!")
         return
 
     konfirmasi = input(
@@ -814,13 +907,6 @@ def batalkan_transaksi():
 
     if konfirmasi == "Y":
         animasi_loading("Membatalkan transaksi...")
-        mobil = cari_berdasarkan_id(
-            data["mobil"], transaksi["id_mobil"]
-        )
-
-        if mobil:
-            mobil["status"] = "Tersedia"
-
         transaksi["status"] = "Dibatalkan"
 
         simpan_data()
@@ -836,9 +922,10 @@ def laporan_statistik():
     print("\n=== LAPORAN SHOWROOM ===")
 
     total_mobil = len(data["mobil"])
+    mobil_pending = id_mobil_pending()
     tersedia = sum(
         1 for m in data["mobil"]
-        if m["status"] == "Tersedia"
+        if m["status"] == "Tersedia" and m["id"] not in mobil_pending
     )
     terjual = sum(
         1 for m in data["mobil"]
@@ -858,6 +945,10 @@ def laporan_statistik():
         ("Mobil Terjual", str(terjual)),
         ("Total Pelanggan", str(len(data["pelanggan"]))),
         ("Total Transaksi", str(len(transaksi_berhasil))),
+        (
+            "Transaksi Pending",
+            str(sum(1 for t in data["transaksi"] if t["status"] == "Pending"))
+        ),
         ("Total Pendapatan", format_rupiah(pendapatan)),
     ]
 
@@ -898,7 +989,7 @@ def laporan_statistik():
 
 
 # ==========================================
-# 9. MENU MANAJEMEN
+# 9. MENU MANAJEMEN MOBIL
 # ==========================================
 
 def menu_mobil():
@@ -980,22 +1071,23 @@ def menu_pelanggan():
 # ==========================================
 # 10. PROGRAM UTAMA
 # ==========================================
-
+#	def main Mendefinisikan fungsi program utama.
 def main():
     muat_data()
     animasi_loading("Memulai showroom system...")
 
     while True:
         menu_premium("SHOWROOM MANAGEMENT SYSTEM", {
-            "1": "Manajemen Data Mobil",
-            "2": "Manajemen Data Pelanggan",
-            "3": "Transaksi Penjualan",
-            "4": "Pencarian Mobil",
-            "5": "Pengurutan Data Mobil",
-            "6": "Laporan dan Statistik",
-            "7": "Riwayat Transaksi",
-            "8": "Pembatalan Transaksi",
-            "0": "Keluar"
+             "1": "Manajemen Data Mobil",
+             "2": "Manajemen Data Pelanggan",
+             "3": "Transaksi Penjualan",
+             "4": "Pencarian Mobil",
+             "5": "Pengurutan Data Mobil",
+             "6": "Laporan dan Statistik",
+             "7": "Konfirmasi Pembayaran Pending",
+             "8": "Pembatalan Transaksi",
+             "9": "Riwayat Transaksi",
+             "0": "Keluar"
         })
 
         pilihan = input("Masukkan pilihan: ").strip()
@@ -1021,12 +1113,16 @@ def main():
             tunggu_enter_ke_menu_utama()
 
         elif pilihan == "7":
-            riwayat_transaksi()
-            tunggu_enter_ke_menu_utama()
+          konfirmasi_pembayaran()
+          tunggu_enter_ke_menu_utama()
 
         elif pilihan == "8":
             if batalkan_transaksi() is not False:
                 tunggu_enter_ke_menu_utama()
+
+        elif pilihan == "9":
+            riwayat_transaksi()
+            tunggu_enter_ke_menu_utama()
 
         elif pilihan == "0":
             simpan_data()
@@ -1036,9 +1132,10 @@ def main():
             break
 
         else:
-            print("Pilihan tidak valid!")
+            print("Pilihan tidak valid!")   
 
 
-# MENJALANKAN PROGRAM
+# MENJALANKAN PROGRAM 	Memeriksa apakah file dijalankan secara langsung.
 if __name__ == "__main__":
     main()
+#Memanggil dan menjalankan fungsi utama.
